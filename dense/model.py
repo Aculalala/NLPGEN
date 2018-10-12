@@ -17,10 +17,17 @@ WE_matrix=tf.get_variable(name='WEM',shape=(C_cut_off,C_WE_dim),dtype=tf.float32
 WE=tf.gather(WE_matrix,X)
 #简单全连接处理
 FC=tf.reshape(WE,(-1,C_window_size*C_WE_dim))
-for i in range(3):
+for i in range(5):
     FC=tf.layers.dense(FC,2048,activation=tf.nn.relu)
+#简单RNN处理
+#cell = tf.nn.rnn_cell.BasicRNNCell(num_units=256)
+#rnn_out= tf.nn.dynamic_rnn(cell, WE, dtype=tf.float32)[0]   
+#rnn_out=tf.layers.flatten(rnn_out[::,-1])
+#print(rnn_out.shape)
+#FC=tf.layers.dense(rnn_out,2048,activation=tf.nn.relu)
 output=tf.layers.dense(FC,C_cut_off)
 prediction=tf.argmax(output, 1)
+soft_prediction=tf.multinomial(output,1)
 loss=tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(
     labels=Y_hot,
     logits=output,
